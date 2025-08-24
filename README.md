@@ -20,8 +20,9 @@ A Spring Boot REST API for personal expense and income tracking with user authen
 
 ## Requirements
 
-- Java 21+
-- PostgreSQL 12+
+- Java 21
+- Maven 3.9.11
+- PostgreSQL 16
 - IDE (IntelliJ IDEA recommended)
 
 ## Setup
