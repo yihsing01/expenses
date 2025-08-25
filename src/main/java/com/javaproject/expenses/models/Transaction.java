@@ -3,10 +3,13 @@ package com.javaproject.expenses.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing financial transactions.
+ * Each transaction belongs to a user and is categorized.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,12 +17,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transactions")
 public class Transaction {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -41,6 +42,12 @@ public class Transaction {
     @Column(name = "transaction_date")
     private LocalDateTime transactionDate;
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    /**
+     * Sets default values before persisting to database.
+     */
     @PrePersist
     public void prePersist() {
         if (transactionDate == null) {
@@ -50,7 +57,4 @@ public class Transaction {
             createdAt = LocalDateTime.now();
         }
     }
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
 }

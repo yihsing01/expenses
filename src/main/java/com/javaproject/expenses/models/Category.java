@@ -6,10 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity representing expense categories.
+ * Categories are used to classify transactions (e.g., Food, Transportation).
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +20,6 @@ import java.util.List;
 @Entity
 @Table(name = "categories")
 public class Category {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,7 +32,7 @@ public class Category {
 
     @NotBlank(message = "Type is required")
     @Size(min = 2, max = 50, message = "Type must be between 2 and 50 characters")
-    @Column(name = "type")
+    @Column(name = "type") // e.g., "income", "expense"
     private String type;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = false)

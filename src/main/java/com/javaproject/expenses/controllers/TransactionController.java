@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * REST Controller for managing transaction operations.
+ * Handles CRUD operations for transactions with user authentication.
+ */
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/transactions")
@@ -25,7 +29,12 @@ public class TransactionController {
     private final CategoryRepository categoryRepository;
     private final TransactionMapper transactionMapper;
 
-    // ✅ FIXED: Only return current user's transactions
+    /**
+     * Retrieves all transactions for the authenticated user.
+     *
+     * @param authentication the current user's authentication context
+     * @return list of transaction DTOs belonging to the authenticated user
+     */
     @GetMapping
     public List<TransactionDto> getAllTransactions(Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
@@ -35,7 +44,13 @@ public class TransactionController {
                 .toList();
     }
 
-    // ✅ FIXED: Only allow access to user's own transactions
+    /**
+     * Retrieves a specific transaction by ID for the authenticated user.
+     *
+     * @param id the transaction ID
+     * @param authentication the current user's authentication context
+     * @return ResponseEntity containing the transaction DTO or error message
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getTransactionById(@PathVariable Long id, Authentication authentication) {
         User currentUser = (User) authentication.getPrincipal();
@@ -49,6 +64,13 @@ public class TransactionController {
         }
     }
 
+    /**
+     * Creates a new transaction for the authenticated user.
+     *
+     * @param payload the transaction data containing categoryId, amount, and description
+     * @param authentication the current user's authentication context
+     * @return ResponseEntity containing the created transaction DTO or error message
+     */
     @PostMapping
     public ResponseEntity<?> createTransaction(
             @RequestBody Map<String, Object> payload,
@@ -73,6 +95,15 @@ public class TransactionController {
         }
     }
 
+    /**
+     * Updates an existing transaction for the authenticated user.
+     * Only updates fields that are present in the payload.
+     *
+     * @param id the transaction ID to update
+     * @param payload the transaction data to update (can contain categoryId, amount, description, transactionDate)
+     * @param authentication the current user's authentication context
+     * @return ResponseEntity containing the updated transaction DTO or error message
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTransaction(
             @PathVariable Long id,
@@ -81,7 +112,6 @@ public class TransactionController {
     ) {
         try {
             User currentUser = (User) authentication.getPrincipal();
-            // ✅ FIXED: Use user-scoped query
             Optional<Transaction> optionalTransaction = transactionRepository.findByIdAndUserId(id, currentUser.getId());
 
             if (optionalTransaction.isEmpty()) {
@@ -91,7 +121,7 @@ public class TransactionController {
 
             Transaction transaction = optionalTransaction.get();
 
-            // Update fields
+            // Update fields conditionally based on payload content
             if (payload.containsKey("categoryId")) {
                 Long categoryId = Long.valueOf(payload.get("categoryId").toString());
                 Category category = categoryRepository.findById(categoryId)
@@ -118,13 +148,19 @@ public class TransactionController {
         }
     }
 
+    /**
+     * Deletes a transaction for the authenticated user.
+     *
+     * @param id the transaction ID to delete
+     * @param authentication the current user's authentication context
+     * @return ResponseEntity with success message or error message
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTransaction(
             @PathVariable Long id,
             Authentication authentication
     ) {
         User currentUser = (User) authentication.getPrincipal();
-        // ✅ FIXED: Use user-scoped query
         Optional<Transaction> optionalTransaction = transactionRepository.findByIdAndUserId(id, currentUser.getId());
 
         if (optionalTransaction.isEmpty()) {
